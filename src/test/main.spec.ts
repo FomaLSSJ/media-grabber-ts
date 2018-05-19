@@ -3,28 +3,36 @@ import { Application, Request, Response } from "express"
 import * as chai from "chai"
 import chaiHttp = require("chai-http")
 import { App } from "../app"
+import { Emitter } from "../emitter"
 
-/** Test suite Application Router */
+/** Test suite Main Router */
 @suite
-class RouterTest {
+class MainRouterTest {
     private app: Application
 
     constructor() {
-        chai.use(chaiHttp)
-
-        this.app = new App().instance
+        this.app = App.staticInstance
+        this.init()
     }
 
-    /** Test case Router Index */
+    private init(): void {
+        chai.use(chaiHttp)
+    }
+
+    /** Test case Router Index Get */
     @test("Index")
-    public create(): void {
+    public create(done): void {
         chai
             .request(this.app)
             .get("/")
             .end((err: Error, { status, body }) => {
-                console.log(body)
                 chai.assert.equal(err, undefined)
                 chai.assert.equal(status, 200)
+                chai.assert.hasAnyKeys(body, [ "success", "data" ])
+                chai.assert.equal(body.success, true)
+                chai.assert.isArray(body.data)
+                chai.assert.lengthOf(body.data, 5)
+                done()
             })
     }
 }

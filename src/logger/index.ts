@@ -1,8 +1,6 @@
-const env: String = process.env.NODE_ENV
-
 export class Logger {
     static log(...args): void {
-        if (env !== "test") {
+        if (process.env.NODE_ENV !== "test") {
             console.log(args.join(" "))
         }
     }
@@ -12,7 +10,7 @@ export class Logger {
     }
 
     static warn(...args): void {
-        if (env !== "production") {
+        if (process.env.NODE_ENV !== "production") {
             console.warn(args.join(" "))
         }
     }

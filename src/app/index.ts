@@ -8,6 +8,8 @@ import { Router } from "../routes"
 import { Controllers } from "../controllers"
 import { Emitter } from "../emitter"
 
+let application: Express.Application
+
 /** Main application class */
 export class App {
     /** Config container */
@@ -47,6 +49,8 @@ export class App {
 
     public async start(): Promise<any> {
         this.app.listen(this.config.get("port"), () => {
+            application = this.app
+            Emitter.instance.emit("appinit")
             Logger.log(`App in [ ${ this.app.get("env") } ] env start on port ${ this.config.get("port") }`)
         })
     }
@@ -54,5 +58,9 @@ export class App {
     /** Get application instance */
     public get instance(): Express.Application {
         return this.app
+    }
+
+    public static get staticInstance(): Express.Application {
+        return application
     }
 }

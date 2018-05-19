@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist",
-    "test": "mocha --exit --recursive ./dist/test",
+    "test": "mocha --exit --timeout 15000 --recursive ./dist/test/*.spec.js",
     "build": "tsc -p tsconfig.json",
     "watch": "tsc --watch -p tsconfig.json",
     "tslint": "tslint -p tsconfig.json",
