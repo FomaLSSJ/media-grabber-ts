@@ -4,7 +4,8 @@ import { WifepornPlatform } from "./api/wifeporn"
 import { DevkiPlatform } from "./api/devki"
 import { XvideosPlatform } from "./api/xvideos"
 import { VkPlatform } from "./api/vk"
-
+import { EroprofilePlatform } from "./api/eroprofile"
+import { PornhubPlatform } from "./api/pornhub"
 
 export class Platforms {
     private platforms: Platform[]
@@ -19,6 +20,8 @@ export class Platforms {
         this.platforms.push(new DevkiPlatform())
         this.platforms.push(new XvideosPlatform())
         this.platforms.push(new VkPlatform())
+        this.platforms.push(new EroprofilePlatform())
+        this.platforms.push(new PornhubPlatform())
     }
 
     public get(domain): Platform {

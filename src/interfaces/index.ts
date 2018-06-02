@@ -4,3 +4,11 @@ export interface Platform {
     validator: Function,
     resolver: Function
 }
+
+export interface DownloadDoc {
+    platform: string,
+    description: string,
+    url: string,
+    file: string,
+    status: boolean
+}

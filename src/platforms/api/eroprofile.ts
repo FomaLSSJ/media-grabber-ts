@@ -5,18 +5,18 @@ import fetch from "node-fetch"
 import { load } from "cheerio"
 import { Platform } from "../../interfaces";
 
-export class XvideosPlatform implements Platform {
+export class EroprofilePlatform implements Platform {
     private format: string
     public name: string
     public domains: string[]
 
     constructor() {
-        this.format = "mp4"
-        this.name = "xvideos"
+        this.format = "m4v"
+        this.name = "eroprofile"
         this.domains = [
-            "www.xvideos.com",
-            "xvideos.com",
-            "xvideos"
+            "www.eroprofile.com",
+            "eroprofile.com",
+            "eroprofile"
         ]
     }
 
@@ -27,7 +27,7 @@ export class XvideosPlatform implements Platform {
             .on("error", console.error)
             .on("end", () => {
                 fileStream.close()
-                console.log(`[ XVideos ] ${ filepath }`)
+                console.log(`[ EroProfile ] ${ filepath }`)
             })
             .pipe(fileStream)
     }
@@ -48,12 +48,15 @@ export class XvideosPlatform implements Platform {
         const $ = load(body)
 
         const html = $.html()
-        const elementsName = html.match(/(html5player.setVideoTitle)..(.*).../g)
-        const elementsUri = html.match(/(html5player.setVideoUrlHigh)..(.*).../g)
-        if (elementsName && elementsUri) {
-            const videoName = elementsName[ 0 ].split("'")[ 1 ]
-            const videoUrl = elementsUri[ 0 ].split("'")[ 1 ]
-            await this.download(videoUrl, path.join(filesdir, dirname, `${ videoName }.${ this.format }`))
+        const elementsDesktop = html.match(/(file)(.*)(\/cdn)(.*)(\'\,)/g)
+        const elementsMobile = html.match(/(")(https?:\/\/cdn)(.*)(")( )/g)
+        if (elementsDesktop) {
+            const videoUrlDesktop = elementsDesktop[ 0 ].split("\"")[ 1 ].replace(/&amp;/g, "&")
+            await this.download(videoUrlDesktop, path.join(filesdir, dirname, `video-desktop.${ this.format }`))
+        }
+        if (elementsMobile) {
+            const videoUrlMobile = elementsMobile[ 0 ].split("\"")[ 1 ].replace(/&amp;/g, "&")
+            await this.download(videoUrlMobile, path.join(filesdir, dirname, `video-mobile.${ this.format }`))
         }
     }
 }

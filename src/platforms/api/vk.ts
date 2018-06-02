@@ -22,19 +22,23 @@ export class VkPlatform implements Platform {
     }
 
     private async init(): Promise<any> {
+        if (!this.config.get("login") || !this.config.get("password")) {
+            return new Error("VK not auth, required login and password")
+        }
+
         await this.vk.authorize({
-            client:   this.config.get("client"),
+            client:   this.config.get("client") || "iphone",
             login:    this.config.get("login"),
             password: this.config.get("password")
         })
     }
 
     private findBestVideo(files: object[]): { file: string, format: string } {
-        let format: string = 'mp4'
+        let format: string = "mp4"
         let max: number = 0
 
         for (const file in files) {
-            let [ newFormat, newMax ] = file.split('_')
+            const [ newFormat, newMax ] = file.split("_")
 
             if (_.isEmpty(newMax)) continue
 
@@ -52,7 +56,10 @@ export class VkPlatform implements Platform {
         const fileStream = fs.createWriteStream(filepath)
         response.body
             .on("error", console.error)
-            .on("end", fileStream.close)
+            .on("end", () => {
+                fileStream.close()
+                console.log(`[ VK ] ${ filepath }`)
+            })
             .pipe(fileStream)
     }
 
@@ -61,7 +68,7 @@ export class VkPlatform implements Platform {
     }
 
     public async resolver(url: string, filesdir?: string): Promise<any> {
-        const videoId = url.split('/').pop().split('o').pop()
+        const videoId = url.split("/").pop().split("o").pop()
 
         const videos = await this.vk.call("video.get", { videos: videoId })
         const [ item ] = videos.items

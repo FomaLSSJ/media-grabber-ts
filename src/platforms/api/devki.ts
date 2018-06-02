@@ -3,7 +3,8 @@ import * as fs from "fs"
 import * as _ from "lodash"
 import fetch from "node-fetch"
 import { load } from "cheerio"
-import { Platform } from "../../interfaces";
+import { Platform } from "../../interfaces"
+import { Database } from "../../database"
 
 export class DevkiPlatform implements Platform {
     private domain: string
@@ -23,7 +24,7 @@ export class DevkiPlatform implements Platform {
         return !!_.find(this.domains, x => _.includes(domain, x))
     }
 
-    public async resolver(url: string, filesdir?: string): Promise<any> {
+    public async resolver(url: string, filesdir?: string): Promise<void> {
         const dirname: string = url.split("/").pop()
 
         if (!fs.existsSync(path.join(filesdir, dirname))) {
@@ -49,10 +50,22 @@ export class DevkiPlatform implements Platform {
             const src = ($(elem).attr("data-url"))
             const filename = src.split("/").pop()
             const response = await fetch(src)
+            const id = await Database.createDownloadDoc({
+                platform: this.name,
+                description: dirname,
+                url: url,
+                file: src,
+                status: false
+            })
+            console.log(id)
             const fileStream = fs.createWriteStream(path.join(filesdir, dirname, filename))
             response.body
                 .on("error", console.error)
-                .on("end", fileStream.close)
+                .on("end", async () => {
+                    fileStream.close()
+                    await Database.updateDownloadDoc(id, { status: true })
+                    console.log(`[ Devki ] ${ dirname }/${ filename }`)
+                })
                 .pipe(fileStream)
         })
     }

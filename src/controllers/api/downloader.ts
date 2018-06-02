@@ -27,7 +27,6 @@ export class DownloaderController {
         const urlParse = new URL(url)
 
         const platform: Platform = this.platforms.get(urlParse.host)
-        console.log(urlParse.host, platform)
         if (!platform) return
 
         await platform.resolver(url, this.filesdir)
